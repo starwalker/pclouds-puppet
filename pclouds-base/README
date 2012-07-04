@@ -1,0 +1,10 @@
+pclouds-base
+
+This is the pclouds-base module, which ensures that the base packages are added to the system.
+
+Specifically it: -
+
+1. Formats as ext4 and mounts the epthemeral disk to /data
+2. Sets the time zone based on the amazon region.
+3. Installs VIM and yum fastmirror plugin.
+4. Installs Ruby, ruby gems. gcc and make etc and installs the fog rubygem for accessing cloud services.
