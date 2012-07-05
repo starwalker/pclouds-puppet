@@ -110,11 +110,11 @@ class pclouds-base {
 		ensure => present
 	}
 		
-	$fog_requires=[ "make", "ruby-devel", "libxml2-devel", "gcc", "libxslt-devel", "libcurl-devel" ]
+	$fog_requires=[ "make", "ruby-devel", "libxml2-devel", "gcc", "libxslt-devel" ]
 	package { $fog_requires: ensure => present }
 	
 	# install the fog gem
-	$ruby_gems = [ "fog", "curb" ]
+	$ruby_gems = [ "fog" ]
 	package { $ruby_gems:
 			ensure => present,
 			provider => gem,
