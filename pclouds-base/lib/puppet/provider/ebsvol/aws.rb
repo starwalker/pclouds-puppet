@@ -36,7 +36,7 @@ Puppet::Type.type(:ebsvol).provide(:aws) do
     	region = resource[:availability_zone].to_s.gsub(/.$/,'') 
 	compute = Fog::Compute.new(:provider => 'aws', :region => "#{region}")
 
-	volume = volinfo(resource[:volume_name])
+	volume = volinfo(compute,resource[:volume_name])
 	# check if volume is attached to something- detach before delete.
 	if (volume == nil) 
 		raise "ebsvol[aws]->destroy: Sorry! I couldn't find the volume #{resource[:volume_name]} to delete"
@@ -47,27 +47,10 @@ Puppet::Type.type(:ebsvol).provide(:aws) do
 			print "ebsvol[aws]->destroy: Looking at status and attachment set...\n" if $debug
 			if ( volume['status'] == 'in-use' && volume['attachmentSet'] != nil )
 				if ( volume['attachmentSet'][0]['status'] == 'attached' && 
-				volume['attachmentSet'][0]['device'] != nil && volume['attachmentSet'][0]['instanceId'] != nil)
+					volume['attachmentSet'][0]['device'] != nil && volume['attachmentSet'][0]['instanceId'] != nil)
 					# detach the volume
 					print "ebsvol[aws]->destroy: detaching #{volume['volumeId']} from #{volume['attachmentSet'][0]['instanceId']}\n" if $debug
-					response = compute.detach_volume(volume['volumeId'], 
-						{ 'Device' => volume['attachmentSet'][0]['device'], 
-						'Force' => true, 
-						'InstanceId' => volume['attachmentSet'][0]['instanceId'] })
-					if (response.status == 200)
-						# now wait for it to detach!
-						check = volinfo(resource[:volume_name])
-						while ( check['status'] != 'available' ) do
-							print "ebsvol[aws]->destroy: status is #{check['status']}\n" if $debug
-			
-							sleep 5
-							check = volinfo(resource[:volume_name])
-						end
-						sleep 5  # allow aws to propigate the fact
-						print "ebsvol[aws]->destroy: volume is now detached\n" if $debug
-					else
-						raise "ebsvol[aws]->destroy: Sorry, I could not detach #{volume['volumeId']} from #{volume['attachmentSet'][0]['instanceId']}"
-					end
+					detach_vol(compute,volume)
 				end
 			end
 			print "ebsvol[aws]->destroy: deleting #{volume['volumeId']}\n" if $debug
@@ -82,7 +65,9 @@ Puppet::Type.type(:ebsvol).provide(:aws) do
     end
 
     def exists?
-	volume = volinfo(resource[:volume_name])
+    	region = resource[:availability_zone].to_s.gsub(/.$/,'') 
+	compute = Fog::Compute.new(:provider => 'aws', :region => "#{region}")
+	volume = volinfo(compute,resource[:volume_name])
 	if (volume != nil && volume['status'] != 'deleting')
 		true
 	else
@@ -93,9 +78,7 @@ Puppet::Type.type(:ebsvol).provide(:aws) do
     # helper function to retrieve a volumes information or nil
     # list the volumes in the region and look for one with a Name tag which matches our name.
     # returns the volumeSet associative array...
-    def volinfo(name)
-    	region = resource[:availability_zone].to_s.gsub(/.$/,'') 
-	compute = Fog::Compute.new(:provider => 'aws', :region => "#{region}")
+    def volinfo(compute,name)
 	volumes = compute.describe_volumes
 	if (volumes.status == 200)
 		# check each of the volumes in our availability zone which match our name.
@@ -111,5 +94,33 @@ Puppet::Type.type(:ebsvol).provide(:aws) do
 	end
 	nil
     end
+
+    # helper function to attach a volume to an instance
+    #
+    def attach_vol(compute,volume,instance,device)
+    end
+
 	
+    # helper function to detach a volume to an instance
+    #
+    def detach_vol(compute,volume)
+	response = compute.detach_volume(volume['volumeId'], 
+			{ 'Device' => volume['attachmentSet'][0]['device'], 
+			'Force' => true, 
+			'InstanceId' => volume['attachmentSet'][0]['instanceId'] })
+	if (response.status == 200)
+		# now wait for it to detach!
+		check = volinfo(compute,resource[:volume_name])
+		while ( check['status'] != 'available' ) do
+			print "ebsvol[aws]->destroy: status is #{check['status']}\n" if $debug
+			sleep 5
+			check = volinfo(compute,resource[:volume_name])
+		end
+		sleep 5  # allow aws to propigate the fact
+		print "ebsvol[aws]->destroy: volume is now detached\n" if $debug
+	else
+		raise "ebsvol[aws]->destroy: Sorry, I could not detach #{volume['volumeId']} from #{volume['attachmentSet'][0]['instanceId']}"
+	end
+    end	
+
 end
