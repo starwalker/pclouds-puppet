@@ -35,15 +35,15 @@ Puppet::Type.newtype(:ebsvol) do
 	end
     end
 
-    newproperty(:attachedto) do
-	desc "The 'Name' of an EC2 instanca, which the volume should be attached to"
-	defaultto nil
-	validate do |value|
-		if (value != nil && resource[:device] == nil)
-			raise ArgumentError, "You need to specify the device when using the attachedto property"
-		end
-	end
-    end
+    #newproperty(:attachedto) do
+#	desc "The 'Name' of an EC2 instance, which the volume should be attached to"
+#	defaultto ''
+#	validate do |value|
+#		if (value != '' && resource[:device] == nil)
+#			raise ArgumentError, "You need to specify the device when using the attachedto property"
+#		end
+#	end
+#    end
 
     newparam(:device) do
         desc "A linux device to attach a volume to, e.g. /dev/sdb"
