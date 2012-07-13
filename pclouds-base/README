@@ -8,3 +8,24 @@ Specifically it: -
 2. Sets the time zone based on the amazon region.
 3. Installs VIM and yum fastmirror plugin.
 4. Installs Ruby, ruby gems. gcc and make etc and installs the fog rubygem for accessing cloud services.
+
+It also includes an ebsvol type and provider which allow you to create, destroy and attach aws ebs volumes
+to your running EC2 instances.  The name of your EBS volume is set as a Name tag so that you can work
+with nanes that mean something to you and you can predict, such as "MyDrupalDatabase" rather than vol-ebcdbb83
+which is allocated by Amazon at creatation as an identifier.
+
+e.g.
+
+ebsvol {
+  'tester1':
+	size => 1,
+  availability_zone => 'eu-west-1a',
+	ensure => present,
+}
+ebsvol {
+	'tester2':
+	ensure => absent,
+}
+
+This is still a work in progress and the functionality to attach to an ec2 instance is not yet complete.
+T
