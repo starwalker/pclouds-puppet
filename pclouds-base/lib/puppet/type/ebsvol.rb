@@ -21,7 +21,7 @@ Puppet::Type.newtype(:ebsvol) do
 	defaultto "1"
 	validate do |value|
 		unless value =~ /^[0-9]+$/
-                	raise ArgumentError , "%s is not a valid size" % value
+                	raise ArgumentError , "ebsvol: %s is not a valid size" % value
 		end
 	end
     end
@@ -35,23 +35,25 @@ Puppet::Type.newtype(:ebsvol) do
 	end
     end
 
-    #newproperty(:attachedto) do
-#	desc "The 'Name' of an EC2 instance, which the volume should be attached to"
-#	defaultto ''
-#	validate do |value|
-#		if (value != '' && resource[:device] == nil)
-#			raise ArgumentError, "You need to specify the device when using the attachedto property"
-#		end
-#	end
-#    end
-
     newparam(:device) do
         desc "A linux device to attach a volume to, e.g. /dev/sdb"
 
         validate do |value|
             unless value =~ /^\/dev\/sd[a-z]$/
-                raise ArgumentError , "%s is not a valid device name" % value
+                raise ArgumentError , "ebsvol: %s is not a valid device name" % value
             end
         end
     end
+
+    newproperty(:attached_to) do
+	desc "The 'Name' of an EC2 instance, which the volume should be attached to"
+	defaultto ''
+	#validate do |value|
+##		print "device = #{resource[:device]}\n"
+#		if (value != '' && resource[:device] == nil)
+#			raise ArgumentError, "ebsvol: You need to specify the device when using the attached_to property"
+#		end
+#	end
+    end
+
 end
