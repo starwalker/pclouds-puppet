@@ -29,4 +29,13 @@ ebsvol {
 
 The EBSVol provider also allows you to attach an EBS volume to an EC2 instance specified by its Name tag or the
 special name "me" which attached it to the EC2 instance performing the puppet run.  If you are attaching a volume
-to an instance then you MUST include the 'device' which you want to attach to.
+to an instance then you MUST include the 'device' which you want to attach to. e.g.
+
+ebsvol {
+  'tester1':
+	size => 1,
+  availability_zone => 'eu-west-1a',
+	ensure => present,
+	attached_to => 'me',
+	device => '/dev/sdb',
+}
