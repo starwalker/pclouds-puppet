@@ -1,0 +1,33 @@
+pclouds-ebsvol
+
+This module allow you to manage Amazon ebs volumes, by creating, destroying, or attaching them to EC2 instances. 
+
+e.g.
+
+ebsvol {
+  'tester1':
+	size => 1,
+  	availability_zone => 'eu-west-1a',
+	ensure => present,
+}
+ebsvol {
+	'tester2':
+	ensure => absent,
+}
+
+The EBSVol provider also allows you to attach an EBS volume to an EC2 instance specified by its Name tag or the
+special name "me" which attached it to the EC2 instance performing the puppet run.  If you are attaching a volume
+to an instance then you MUST include the 'device' which you want to attach to. e.g.
+
+ebsvol {
+  'tester1':
+	size => 1,
+  	availability_zone => 'eu-west-1a',
+	ensure => present,
+	attached_to => 'me',
+	device => '/dev/sdb',
+}
+
+NOTE: A volume MUST be in the same availability zone as an EC2 instance in order to be able to attach to it.
+
+Once a volume is attached to an instance, it still needs a file system and mounting, which will be handled by other puppet modules.
