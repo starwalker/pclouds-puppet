@@ -1,6 +1,9 @@
 pclouds-ebsvol
 
+Please see http://www.practicalclouds.com/content/guide/custom-puppet-type-ebsvol for more information.
+
 This module allow you to manage Amazon ebs volumes, by creating, destroying, or attaching them to EC2 instances. 
+NOTE: It requires the fog rubygem to be installed and access keyxes with enough priviledges to create, destroy and attach ebsvolumes in ~/.fog configured.
 
 e.g.
 
